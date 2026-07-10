@@ -20,6 +20,8 @@ export const fetchRandomArticle = async (): Promise<Article> => {
     title: data.title,
     summary: data.extract,
     image: data.thumbnail?.source,
+    pageid: data.pageid,
+    url: data.content_urls?.desktop?.page,
   };
 };
 

@@ -1,10 +1,10 @@
-import { View, Text, StyleSheet, FlatList,Button, ActivityIndicator  } from "react-native";
+import { View, Text, StyleSheet, FlatList,Button, ActivityIndicator, Image   } from "react-native";
 import { useEffect,useRef, useState } from "react";
 import ArticleCard from "../../components/ArticleCard";
 import type {Article} from "../../services/types/article"
 import { fetchRandomArticle } from "../../services/wikipedia";
 import { fetchArticles } from "../../services/wikipedia";
-
+import logo from "../../assets/images/logoTangent.png";
 
 
 const HomeScreen = () => {
@@ -68,7 +68,10 @@ const HomeScreen = () => {
   if (initialLoading) {
   return (
     <View style={styles.loadingContainer}>
-      <Text style={styles.logo}>Tangent</Text>
+      <Image
+        source={logo}
+        style={styles.logo}
+      />
       <ActivityIndicator size="large" />
       <Text>Loading knowledge...</Text>
     </View>
@@ -104,9 +107,10 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    fontSize: 40,
-    fontWeight: "bold",
+    width: 120,
+    height: 120,
     marginBottom: 20,
+    resizeMode: "contain",
   },
 });
 

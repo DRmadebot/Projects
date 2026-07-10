@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, Pressable } from "react-native";
+import { View, Text, StyleSheet, Image, Pressable,Linking } from "react-native";
 import type {Article} from "../services/types/article"
 
 type ArticleCardProps = {
@@ -12,10 +12,19 @@ const ArticleCard = ({ article }: ArticleCardProps)=>{
 
             <Text style={styles.summary}>{article.summary}</Text>
 
-            <Pressable onPress={()=>console.log("Read more pressed")}>
+            <Pressable
+                onPress={async () => {
+                    try {
+                    if (article.url) {
+                        await Linking.openURL(article.url);
+                    }
+                    } catch (error) {
+                    console.log("Could not open link:", error);
+                    }
+                }}
+                >
                 <Text style={styles.button}>Read more</Text>
             </Pressable>
-
         </View>
     )
 }
