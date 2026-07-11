@@ -36,6 +36,7 @@ const HomeScreen = () => {
   }, []);
 
 
+  const MAX_ARTICLES = 1000;
 
   const loadAnotherArticle = async () => {
     if (loadingRef.current) return;
@@ -49,10 +50,16 @@ const HomeScreen = () => {
 
       const newBufferPromise = fetchArticles(5);
 
-      setArticles((prev) => [
-        ...prev,
-        ...articlesToAdd,
-      ]);
+      setArticles(prev => {
+        const updated = [...prev, ...articlesToAdd];
+
+        if (updated.length <= MAX_ARTICLES) {
+          return updated;
+        }
+
+        // Remove the oldest articles
+        return updated.slice(updated.length - MAX_ARTICLES);
+      });
 
       const newBuffer = await newBufferPromise;
       setBuffer(newBuffer);
