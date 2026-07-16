@@ -9,47 +9,64 @@ type ArticleCardProps = {
   onToggleBookmark: (article: Article) => void;
 };
 
-const ArticleCard = ({ article,isBookmarked,onToggleBookmark }: ArticleCardProps)=>{
-    return (
-        <View style={styles.card}>
-            {article.image && (
-            <Image
-                source={{ uri: article.image }}
-                style={styles.thumbnail}
-                contentFit="cover"
-                transition={200}
-            />
-            )}
-             <Text style={styles.title}>{article.title}</Text>
+const ArticleCard = ({
+  article,
+  isBookmarked,
+  onToggleBookmark,
+}: ArticleCardProps) => {
+  const words = article.summary.split(" ");
 
-            <Text style={styles.summary}>{article.summary}</Text>
+  // Text that appears beside the image
+  const firstPart = words.slice(0, 24).join(" ");
 
-            <View style={styles.actions}>
-                <Pressable
-                onPress={() => onToggleBookmark(article)}
-                >
-                <Text style={styles.bookmarkText}>
-                    {isBookmarked ? "★ Bookmarked" : "☆ Bookmark"}
-                </Text>
-                </Pressable>
+  // Text that appears below the image
+  const secondPart = words.slice(24).join(" ");
 
-                <Pressable
-                onPress={async () => {
-                    try {
-                    if (article.url) {
-                        await Linking.openURL(article.url);
-                    }
-                    } catch (error) {
-                    console.log("Could not open link:", error);
-                    }
-                }}
-                >
-                <Text style={styles.button}>Read more</Text>
-                </Pressable>
-            </View>
-        </View>
-    )
-}
+  return (
+    <View style={styles.card}>
+      <Text style={styles.title}>{article.title}</Text>
+
+      <View style={styles.topSection}>
+        <Text style={styles.summaryTop}>{firstPart}</Text>
+
+        {article.image && (
+          <Image
+            source={{ uri: article.image }}
+            style={styles.thumbnail}
+            contentFit="cover"
+            transition={200}
+          />
+        )}
+      </View>
+
+      {secondPart && (
+        <Text style={styles.summaryBottom}>{secondPart}</Text>
+      )}
+
+      <View style={styles.actions}>
+        <Pressable onPress={() => onToggleBookmark(article)}>
+          <Text style={styles.bookmarkText}>
+            {isBookmarked ? "★ Bookmarked" : "☆ Bookmark"}
+          </Text>
+        </Pressable>
+
+        <Pressable
+          onPress={async () => {
+            try {
+              if (article.url) {
+                await Linking.openURL(article.url);
+              }
+            } catch (error) {
+              console.log("Could not open link:", error);
+            }
+          }}
+        >
+          <Text style={styles.button}>Read more</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   card: {
@@ -60,29 +77,37 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
 
-  headerRow: {
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+
+  topSection: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "flex-start",
     gap: 12,
   },
 
-  title: {
+  summaryTop: {
     flex: 1,
-    fontSize: 24,
-    fontWeight: "bold",
+    fontSize: 16,
+    lineHeight: 24,
+    maxHeight: 96,
+    textAlign: "justify",
   },
 
-  thumbnail: {
-    width: 72,
-    height: 72,
-    borderRadius: 8,
-  },
-
-  summary: {
+  summaryBottom: {
     fontSize: 16,
     lineHeight: 24,
     marginTop: 8,
+    textAlign: "justify",
+  },
+
+  thumbnail: {
+    width: 130,
+    height: 100,
+    borderRadius: 8,
   },
 
   actions: {
