@@ -2,6 +2,7 @@ import * as SQLite from "expo-sqlite";
 
 export const db = SQLite.openDatabaseSync("tangent.db");
 
+
 db.execSync(`
   CREATE TABLE IF NOT EXISTS articles (
     pageid INTEGER PRIMARY KEY,

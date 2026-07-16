@@ -1,6 +1,31 @@
 import type { Article } from "../services/types/article";
 import { db } from "./database";
 
+const MAX_ARTICLES = 5000;
+
+
+export function pruneArticles() {
+  // Delete articles older than 7 days
+  db.runSync(`
+    DELETE FROM articles
+    WHERE cached_date < date('now', '-7 days')
+  `);
+
+  // Keep only the newest 5,000 articles
+  db.runSync(
+    `
+    DELETE FROM articles
+    WHERE rowid NOT IN (
+      SELECT rowid
+      FROM articles
+      ORDER BY cached_date DESC, rowid DESC
+      LIMIT ?
+    )
+    `,
+    MAX_ARTICLES
+  );
+}
+
 export function saveArticles(articles: Article[], cachedDate: string) {
   const statement = db.prepareSync(`
     INSERT OR REPLACE INTO articles

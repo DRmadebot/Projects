@@ -1,8 +1,10 @@
 import { useFocusEffect } from "@react-navigation/native";
+import { Link } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, View } from "react-native";
 import logo from "../../assets/images/logoTangent.png";
 import ArticleCard from "../../components/ArticleCard";
+import { pruneArticles } from "../../db/articles";
 import { addBookmark, getBookmarkedIds, removeBookmark } from "../../db/bookmarks";
 import { getInitialFeed, loadMore } from "../../services/feed";
 import type { Article } from "../../services/types/article";
@@ -26,6 +28,8 @@ const HomeScreen = () => {
   useEffect(() => {
     const getArticle = async () => {
       try {
+        pruneArticles();
+
         const [initialArticles, initialBuffer] = await Promise.all([
           getInitialFeed(20),
           loadMore(20),
@@ -70,7 +74,7 @@ const HomeScreen = () => {
         return updated;
       });
     }
-  },[]);
+  },[bookmarkedIds]);
 
 
 
@@ -122,6 +126,10 @@ const HomeScreen = () => {
   if (initialLoading) {
     return (
       <View style={styles.loadingContainer}>
+        <Link href="/debug" style={{ padding: 12 }}>
+          <Text>🛠 Debug</Text>
+        </Link>
+
         <Image
           source={logo}
           style={styles.logo}
@@ -134,7 +142,10 @@ const HomeScreen = () => {
   else{
     return (
       <View style={styles.container}>
-
+        <Link href="/debug" style={{ padding: 12 }}>
+          <Text>🛠 Debug</Text>
+        </Link>
+        
         <FlatList
           data={articles}
           renderItem={ renderItem }
