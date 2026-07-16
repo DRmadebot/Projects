@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, View } from "react-native";
 import logo from "../../assets/images/logoTangent.png";
 import ArticleCard from "../../components/ArticleCard";
-import { getAllArticles } from "../../db/articles";
 import { addBookmark, getBookmarkedIds, removeBookmark } from "../../db/bookmarks";
 import { getInitialFeed, loadMore } from "../../services/feed";
 import type { Article } from "../../services/types/article";
@@ -32,8 +31,11 @@ const HomeScreen = () => {
           loadMore(20),
         ]);
 
+        const initialIds = new Set(initialArticles.map((a) => a.pageid));
+        const cleanBuffer = initialBuffer.filter((a) => !initialIds.has(a.pageid));
+
         setArticles(initialArticles);
-        setBuffer(initialBuffer);
+        setBuffer(cleanBuffer);
 
       } catch (error) {
         console.log(error);
@@ -43,13 +45,12 @@ const HomeScreen = () => {
     };
 
     getArticle();
-    getAllArticles();
   }, []);
 
 
   const MAX_ARTICLES = 1000;
 
-  const handleToggleBookmark = (article: Article) => {
+  const handleToggleBookmark = useCallback((article: Article) => {
     const isCurrentlyBookmarked = bookmarkedIds.has(article.pageid);
 
     if (isCurrentlyBookmarked) {
@@ -69,7 +70,7 @@ const HomeScreen = () => {
         return updated;
       });
     }
-  };
+  },[]);
 
 
 
@@ -107,17 +108,28 @@ const HomeScreen = () => {
   };
 
 
-  if (initialLoading) {
-  return (
-    <View style={styles.loadingContainer}>
-      <Image
-        source={logo}
-        style={styles.logo}
+  const renderItem = useCallback(
+    ({ item }: { item: Article }) => (
+      <ArticleCard
+        article={item}
+        isBookmarked={bookmarkedIds.has(item.pageid)}
+        onToggleBookmark={handleToggleBookmark}
       />
-      <ActivityIndicator size="large" />
-      <Text>Loading knowledge...</Text>
-    </View>
+    ),
+    [bookmarkedIds, handleToggleBookmark]
   );
+
+  if (initialLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Image
+          source={logo}
+          style={styles.logo}
+        />
+        <ActivityIndicator size="large" />
+        <Text>Loading knowledge...</Text>
+      </View>
+    );
   }
   else{
     return (
@@ -125,7 +137,7 @@ const HomeScreen = () => {
 
         <FlatList
           data={articles}
-          renderItem={({ item }) => <ArticleCard article={item} isBookmarked={bookmarkedIds.has(item.pageid)} onToggleBookmark={handleToggleBookmark} />}
+          renderItem={ renderItem }
           keyExtractor={(item) => item.pageid?.toString() ?? item.title}
           onEndReachedThreshold={0.8}
           onEndReached={loadAnotherArticle}

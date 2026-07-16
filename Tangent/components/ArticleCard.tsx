@@ -15,7 +15,7 @@ const ArticleCard = ({ article,isBookmarked,onToggleBookmark }: ArticleCardProps
             {article.image && (
             <Image
                 source={{ uri: article.image }}
-                style={styles.image}
+                style={styles.thumbnail}
                 contentFit="cover"
                 transition={200}
             />
@@ -52,45 +52,56 @@ const ArticleCard = ({ article,isBookmarked,onToggleBookmark }: ArticleCardProps
 }
 
 const styles = StyleSheet.create({
-    actions: {
+  card: {
+    backgroundColor: "white",
+    padding: 16,
+    borderRadius: 12,
+    margin: 16,
+    overflow: "hidden",
+  },
+
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: 12,
+  },
+
+  title: {
+    flex: 1,
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+
+  thumbnail: {
+    width: 72,
+    height: 72,
+    borderRadius: 8,
+  },
+
+  summary: {
+    fontSize: 16,
+    lineHeight: 24,
+    marginTop: 8,
+  },
+
+  actions: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginTop: 12,
-    },
+  },
 
-    bookmarkText: {
+  bookmarkText: {
     fontSize: 16,
     fontWeight: "bold",
-    },
-    card: {
-        backgroundColor: "white",
-        padding: 16,
-        borderRadius: 12,
-        margin: 16,
-        overflow: "hidden",
-    },  
-    image: {
-    width: "100%",
-    height: 180,
-    },
+  },
 
-    title: {
-        fontSize: 24,
-        fontWeight: "bold",
-        marginBottom: 8,
-    },
-
-    summary: {
-        fontSize: 16,
-        lineHeight: 24,
-    },
-
-    button: {
+  button: {
     marginTop: 12,
     fontSize: 16,
     fontWeight: "bold",
-    },
+  },
 });
 
 export default memo(ArticleCard);
