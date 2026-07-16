@@ -18,7 +18,7 @@ const HomeScreen = () => {
       try {
         const [initialArticles, initialBuffer] = await Promise.all([
           getInitialFeed(5),
-          getInitialFeed(5),
+          loadMore(5),
         ]);
 
         setArticles(initialArticles);

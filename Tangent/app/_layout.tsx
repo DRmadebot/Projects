@@ -11,12 +11,13 @@ export const unstable_settings = {
   anchor: '(tabs)',
 };
 
-useEffect(() => {
-  initializeDatabase();
-}, []);
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+
+  useEffect(() => {
+    initializeDatabase();
+  }, []);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
