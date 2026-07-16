@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, View } from "react-native";
 import logo from "../../assets/images/logoTangent.png";
 import ArticleCard from "../../components/ArticleCard";
+import { getAllArticles } from "../../db/articles";
 import { getInitialFeed, loadMore } from "../../services/feed";
 import type { Article } from "../../services/types/article";
-
 
 const HomeScreen = () => {
   const [initialLoading, setInitialLoading] = useState(true);
@@ -17,8 +17,8 @@ const HomeScreen = () => {
     const getArticle = async () => {
       try {
         const [initialArticles, initialBuffer] = await Promise.all([
-          getInitialFeed(5),
-          loadMore(5),
+          getInitialFeed(20),
+          loadMore(20),
         ]);
 
         setArticles(initialArticles);
@@ -32,6 +32,7 @@ const HomeScreen = () => {
     };
 
     getArticle();
+    getAllArticles();
   }, []);
 
 
@@ -45,9 +46,9 @@ const HomeScreen = () => {
     try {
       const articlesToAdd = buffer.length
         ? buffer
-        : await loadMore(5);
+        : await loadMore(10);
 
-      const newBufferPromise = loadMore(5);
+      const newBufferPromise = loadMore(10);
 
       setArticles(prev => {
         const updated = [...prev, ...articlesToAdd];

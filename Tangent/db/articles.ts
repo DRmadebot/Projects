@@ -35,3 +35,29 @@ export function getArticlesForDate(date: string): Article[] {
     [date]
   );
 }
+
+export function getExistingPageIds(pageids: number[]): Set<number> {
+  if (pageids.length === 0) return new Set();
+
+  // Build "?, ?, ?" placeholders matching the number of ids we're checking
+  const placeholders = pageids.map(() => "?").join(", ");
+
+  const rows = db.getAllSync<{ pageid: number }>(
+    `SELECT pageid FROM articles WHERE pageid IN (${placeholders})`,
+    pageids
+  );
+
+  return new Set(rows.map((r) => r.pageid));
+}
+
+export function getAllArticles(): Article[] {
+  return db.getAllSync<Article>(`
+    SELECT * FROM articles
+  `);
+}
+
+export function clearArticles() {
+  db.execSync(`
+    DELETE FROM articles;
+  `);
+}

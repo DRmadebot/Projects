@@ -1,7 +1,9 @@
-import { getArticlesForDate, saveArticles } from "../db/articles";
+import { getArticlesForDate, getExistingPageIds, saveArticles } from "../db/articles";
 import { getTodayString } from "../utils/date";
 import type { Article } from "./types/article";
 import { fetchArticles } from "./wikipedia";
+
+
 
 export async function getInitialFeed(count: number): Promise<Article[]> {
   const today = getTodayString();
@@ -20,9 +22,13 @@ export async function getInitialFeed(count: number): Promise<Article[]> {
 }
 
 export async function loadMore(count: number): Promise<Article[]>  {
-    const articles = await fetchArticles(count);
+    const fetched = await fetchArticles(count);
 
-    saveArticles(articles, getTodayString());
+    const existingIds = getExistingPageIds(fetched.map((a) => a.pageid));
+    const newArticles = fetched.filter((a) => !existingIds.has(a.pageid));
 
-    return articles;
+    saveArticles(newArticles, getTodayString());
+
+    return newArticles;
 }
+

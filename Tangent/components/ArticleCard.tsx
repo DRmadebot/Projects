@@ -1,5 +1,7 @@
-import { View, Text, StyleSheet, Image, Pressable,Linking } from "react-native";
-import type {Article} from "../services/types/article"
+import { Image } from "expo-image";
+import { memo } from "react";
+import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import type { Article } from "../services/types/article";
 
 type ArticleCardProps = {
   article: Article;
@@ -8,6 +10,14 @@ type ArticleCardProps = {
 const ArticleCard = ({ article }: ArticleCardProps)=>{
     return (
         <View style={styles.card}>
+            {article.image && (
+            <Image
+                source={{ uri: article.image }}
+                style={styles.image}
+                contentFit="cover"
+                transition={200}
+            />
+            )}
              <Text style={styles.title}>{article.title}</Text>
 
             <Text style={styles.summary}>{article.summary}</Text>
@@ -35,6 +45,11 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 12,
         margin: 16,
+        overflow: "hidden",
+    },  
+    image: {
+    width: "100%",
+    height: 180,
     },
 
     title: {
@@ -55,4 +70,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ArticleCard;
+export default memo(ArticleCard);

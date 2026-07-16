@@ -2,7 +2,7 @@ import type { Article } from "./types/article";
 
 export const fetchRandomArticle = async (): Promise<Article> => {
   const response = await fetch(
-    "https://en.wikipedia.org/api/rest_v1/page/random/summary",
+    "https://en.wikipedia.org/w/api.php?action=query&generator=random&grnnamespace=0&grnlimit=1&prop=extracts|pageimages|info&exintro=1&explaintext=1&inprop=url&pithumbsize=500&format=json&origin=*",
     {
       headers: {
         "User-Agent": "Xikipedia/0.1",
@@ -26,17 +26,44 @@ export const fetchRandomArticle = async (): Promise<Article> => {
 };
 
 
-export const fetchArticles = async (count: number) => {
+export const fetchArticles = async (count: number): Promise<Article[]> => {
+  try {
+    return await fetchArticlesBatch(count);
+  } catch {
+    console.warn("Batch fetch failed, falling back to individual requests");
+    return fetchArticlesSolo(count);
+  }
+};
+
+const fetchArticlesSolo = async (count: number): Promise<Article[]> => {
   const results = await Promise.allSettled(
     Array.from({ length: count }).map(() => fetchRandomArticle())
   );
 
-  const fetchedArticles = results
+  return results
     .filter(
       (r): r is PromiseFulfilledResult<Article> =>
         r.status === "fulfilled"
     )
     .map((r) => r.value);
+};
 
-  return fetchedArticles;
-}
+const fetchArticlesBatch = async (count: number): Promise<Article[]> => {
+  const url = `https://en.wikipedia.org/w/api.php?action=query&generator=random&grnnamespace=0&grnlimit=${count}&prop=extracts|pageimages|info&exintro=1&explaintext=1&inprop=url&pithumbsize=500&format=json&origin=*`;
+
+  const response = await fetch(url, { headers: { "User-Agent": "Xikipedia/0.1" } });
+  if (!response.ok) throw new Error("Batch fetch failed");
+
+  const data = await response.json();
+  const pages = Object.values(data.query.pages) as any[];
+
+  if (pages.length === 0) throw new Error("Batch fetch returned no pages");
+
+  return pages.map((p) => ({
+    pageid: p.pageid,
+    title: p.title,
+    summary: p.extract,
+    image: p.thumbnail?.source,
+    url: p.fullurl,
+  }));
+};
