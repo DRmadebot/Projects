@@ -12,6 +12,15 @@ db.execSync(`
     cached_date TEXT NOT NULL,
     bookmarked INTEGER DEFAULT 0
   );
+  
+  CREATE TABLE IF NOT EXISTS bookmarks (
+    pageid INTEGER PRIMARY KEY,
+    title TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    image TEXT,
+    url TEXT,
+    bookmarked_at TEXT NOT NULL
+  );
 `);
 
 

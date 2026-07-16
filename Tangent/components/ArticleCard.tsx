@@ -5,9 +5,11 @@ import type { Article } from "../services/types/article";
 
 type ArticleCardProps = {
   article: Article;
+  isBookmarked: boolean;
+  onToggleBookmark: (article: Article) => void;
 };
 
-const ArticleCard = ({ article }: ArticleCardProps)=>{
+const ArticleCard = ({ article,isBookmarked,onToggleBookmark }: ArticleCardProps)=>{
     return (
         <View style={styles.card}>
             {article.image && (
@@ -22,7 +24,16 @@ const ArticleCard = ({ article }: ArticleCardProps)=>{
 
             <Text style={styles.summary}>{article.summary}</Text>
 
-            <Pressable
+            <View style={styles.actions}>
+                <Pressable
+                onPress={() => onToggleBookmark(article)}
+                >
+                <Text style={styles.bookmarkText}>
+                    {isBookmarked ? "★ Bookmarked" : "☆ Bookmark"}
+                </Text>
+                </Pressable>
+
+                <Pressable
                 onPress={async () => {
                     try {
                     if (article.url) {
@@ -34,12 +45,24 @@ const ArticleCard = ({ article }: ArticleCardProps)=>{
                 }}
                 >
                 <Text style={styles.button}>Read more</Text>
-            </Pressable>
+                </Pressable>
+            </View>
         </View>
     )
 }
 
 const styles = StyleSheet.create({
+    actions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 12,
+    },
+
+    bookmarkText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    },
     card: {
         backgroundColor: "white",
         padding: 16,

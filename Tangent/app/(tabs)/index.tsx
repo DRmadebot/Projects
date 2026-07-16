@@ -1,10 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, View } from "react-native";
 import logo from "../../assets/images/logoTangent.png";
 import ArticleCard from "../../components/ArticleCard";
 import { getAllArticles } from "../../db/articles";
+import { addBookmark, getBookmarkedIds, removeBookmark } from "../../db/bookmarks";
 import { getInitialFeed, loadMore } from "../../services/feed";
 import type { Article } from "../../services/types/article";
+
+
 
 const HomeScreen = () => {
   const [initialLoading, setInitialLoading] = useState(true);
@@ -12,6 +16,13 @@ const HomeScreen = () => {
   const [buffer, setBuffer] = useState<Article[]>([]);
   const loadingRef = useRef(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [bookmarkedIds, setBookmarkedIds] = useState<Set<number>>(new Set());
+
+  useFocusEffect(
+    useCallback(() => {
+      setBookmarkedIds(getBookmarkedIds());
+    }, [])
+  );
 
   useEffect(() => {
     const getArticle = async () => {
@@ -37,6 +48,30 @@ const HomeScreen = () => {
 
 
   const MAX_ARTICLES = 1000;
+
+  const handleToggleBookmark = (article: Article) => {
+    const isCurrentlyBookmarked = bookmarkedIds.has(article.pageid);
+
+    if (isCurrentlyBookmarked) {
+      removeBookmark(article.pageid);
+
+      setBookmarkedIds((prev) => {
+        const updated = new Set(prev);
+        updated.delete(article.pageid);
+        return updated;
+      });
+    } else {
+      addBookmark(article);
+
+      setBookmarkedIds((prev) => {
+        const updated = new Set(prev);
+        updated.add(article.pageid);
+        return updated;
+      });
+    }
+  };
+
+
 
   const loadAnotherArticle = async () => {
     if (loadingRef.current) return;
@@ -90,7 +125,7 @@ const HomeScreen = () => {
 
         <FlatList
           data={articles}
-          renderItem={({ item }) => <ArticleCard article={item} />}
+          renderItem={({ item }) => <ArticleCard article={item} isBookmarked={bookmarkedIds.has(item.pageid)} onToggleBookmark={handleToggleBookmark} />}
           keyExtractor={(item) => item.pageid?.toString() ?? item.title}
           onEndReachedThreshold={0.8}
           onEndReached={loadAnotherArticle}
