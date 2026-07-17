@@ -1,3 +1,4 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { memo } from "react";
 import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
@@ -45,9 +46,11 @@ const ArticleCard = ({
 
       <View style={styles.actions}>
         <Pressable onPress={() => onToggleBookmark(article)}>
-          <Text style={styles.bookmarkText}>
-            {isBookmarked ? "★ Bookmarked" : "☆ Bookmark"}
-          </Text>
+          <MaterialIcons
+            name={isBookmarked ? "bookmark" : "bookmark-border"}
+            size={30}
+            color={isBookmarked ? "#e9e50d" : "#22223b"}
+          />
         </Pressable>
 
         <Pressable
