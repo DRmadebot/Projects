@@ -86,3 +86,12 @@ export function clearArticles() {
     DELETE FROM articles;
   `);
 }
+
+export function searchArticlesByTitle(query: string): Article[] {
+  if (!query.trim()) return [];
+
+  return db.getAllSync<Article>(
+    `SELECT * FROM articles WHERE title LIKE ? ORDER BY rowid DESC LIMIT 50`,
+    [`%${query}%`]
+  );
+}

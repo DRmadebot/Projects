@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, View } from "react-native";
 import logo from "../../assets/images/logoTangent.png";
 import ArticleCard from "../../components/ArticleCard";
-import { pruneArticles } from "../../db/articles";
+import SearchBar from "../../components/SearchBar";
+import { pruneArticles, searchArticlesByTitle } from "../../db/articles";
 import { addBookmark, getBookmarkedIds, removeBookmark } from "../../db/bookmarks";
 import { getInitialFeed, loadMore } from "../../services/feed";
 import type { Article } from "../../services/types/article";
@@ -24,6 +25,17 @@ const HomeScreen = () => {
       setBookmarkedIds(getBookmarkedIds());
     }, [])
   );
+
+
+  const [searchResults, setSearchResults] = useState<Article[] | null>(null);
+
+  const handleSearch = useCallback((query: string) => {
+    if (!query.trim()) {
+      setSearchResults(null); // empty query — show the normal feed again
+      return;
+    }
+    setSearchResults(searchArticlesByTitle(query));
+  }, []);
 
   useEffect(() => {
     const getArticle = async () => {
@@ -145,14 +157,16 @@ const HomeScreen = () => {
         <Link href="/debug" style={{ padding: 12 }}>
           <Text>🛠 Debug</Text>
         </Link>
-        
+
+        <SearchBar onSearch={handleSearch} />
+
         <FlatList
-          data={articles}
+          data={searchResults ?? articles}
           renderItem={ renderItem }
           keyExtractor={(item) => item.pageid?.toString() ?? item.title}
           onEndReachedThreshold={0.8}
-          onEndReached={loadAnotherArticle}
-          ListFooterComponent={loadingMore ? <ActivityIndicator style={{ margin: 16 }} /> : null}
+          onEndReached={searchResults ? undefined : loadAnotherArticle}
+          ListFooterComponent={!searchResults && loadingMore ? <ActivityIndicator style={{ margin: 16 }} /> : null}
         />
       </View>
     );
