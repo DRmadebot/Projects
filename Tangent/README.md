@@ -1,11 +1,19 @@
-# Tangent
+<p align="center">
+  <img src="assets/images/logoTangent.png" alt="Tangent logo" width="120" />
+</p>
 
-An infinite-scroll feed of random Wikipedia articles, built with Expo Router and React Native. Open the app and keep swiping through the world's knowledge, one random article at a time — think "TikTok, but for Wikipedia." Bookmark anything worth remembering, and search back through what you've already seen.
+<h1 align="center">Tangent</h1>
+
+<p align="center">
+  An infinite-scroll feed of random Wikipedia articles, built with Expo Router and React Native.<br/>
+  Open the app and keep swiping through the world's knowledge, one random article at a time — think "TikTok, but for Wikipedia."
+</p>
 
 ## Table of contents
 
 - [Overview](#overview)
 - [Features](#features)
+- [Architecture](#architecture)
 - [Tech stack](#tech-stack)
 - [Getting started](#getting-started)
 - [Project structure](#project-structure)
@@ -27,8 +35,6 @@ An infinite-scroll feed of random Wikipedia articles, built with Expo Router and
 
 Tangent is a mobile-first content discovery app. Instead of searching for what you want to read, you scroll a feed of randomly surfaced Wikipedia summaries — tap "Read more" on anything that catches your eye to open the full article in your browser, or tap the bookmark icon to save it for later. The app caches whatever it fetches locally, so re-opening it later the same day doesn't re-hit the network or show a blank loading screen, and you can search back through everything you've already scrolled past.
 
-The internal package name is `xikipedia`; the public-facing app name is **Tangent**.
-
 ## Features
 
 - **Infinite feed** of random Wikipedia articles with smooth, threshold-based pagination (`onEndReached` fires at 80% scroll depth)
@@ -38,9 +44,16 @@ The internal package name is `xikipedia`; the public-facing app name is **Tangen
 - **Bookmarks** — save any article with a tap; bookmarks live in their own tab and persist independently of the feed cache
 - **Search your history** — a search bar on the Home feed finds articles you've already scrolled past, by title, so you can revisit one without waiting to randomly see it again
 - **Batched fetching with automatic fallback** — articles are normally fetched in a single efficient batch request; if that fails, the app transparently falls back to independent per-article requests so a bad connection doesn't mean an empty feed
-- **Light/dark mode** support throughout, driven by the device's color scheme
 - **Tap to read more** — opens the full Wikipedia article in the system browser via `Linking.openURL`
 - **Haptic tab feedback** on navigation (via `expo-haptics`)
+
+## Architecture
+
+<p align="center">
+  <img src="assets/images/architecture-diagram.svg" alt="Tangent architecture diagram" width="720" />
+</p>
+
+Random articles flow in from Wikipedia's API, get normalized and deduplicated in the services layer, and land in a local SQLite database. The Home feed, search bar, and Bookmarks tab all read from that same local cache — nothing in the UI talks to the network directly.
 
 ## Tech stack
 
@@ -53,7 +66,6 @@ The internal package name is `xikipedia`; the public-facing app name is **Tangen
 | Data source | Wikipedia public API (`en.wikipedia.org/w/api.php` + REST `page/summary`) |
 | Language | TypeScript |
 | Images | `expo-image` |
-| Animations | `react-native-reanimated` + `react-native-worklets` |
 | List rendering | `react-native` `FlatList` (`@shopify/flash-list` installed, not yet wired in) |
 | Icons | `@expo/vector-icons`, `expo-symbols` |
 | Linting | ESLint (`eslint-config-expo`) |
@@ -69,8 +81,8 @@ The internal package name is `xikipedia`; the public-facing app name is **Tangen
 ### Installation
 
 ```bash
-git clone <your-repo-url>
-cd Tangent
+git clone https://github.com/DRmadebot/Projects.git
+cd Projects/Tangent
 npm install
 ```
 
@@ -123,8 +135,8 @@ Tangent/
 ├── hooks/                       Color-scheme and theme hooks
 ├── constants/theme.ts           Color and font tokens
 ├── utils/date.ts                Date formatting helper (used as the cache key)
-├── backend/                     Standalone Express server (currently unused by the app)
-├── assets/images/               App icons, splash screen, logo
+├── backend/                     Standalone Express server (currently unused by the app — see note below)
+├── assets/images/               App icons, splash screen, logo, architecture diagram
 ├── app.json                     Expo app config (name, icons, plugins, bundle IDs)
 ├── eas.json                     EAS Build profiles (development / preview / production)
 └── package.json
@@ -139,7 +151,7 @@ Tangent/
 
 ## Bookmarks
 
-Tapping the bookmark icon on any `ArticleCard` saves it to a dedicated `bookmarks` table (`db/bookmarks.ts`) — separate from the main feed cache, so a bookmarked article survives even after it's pruned from `articles`. The **Bookmarked** tab (`app/(tabs)/explore.tsx`) lists everything saved, most recent first, with the same card UI and an unbookmark action.
+Tapping the bookmark icon on any `ArticleCard` saves it to a dedicated `bookmarks` table (`db/bookmarks.ts`) — separate from the main feed cache, so a bookmarked article survives even after it's pruned from `articles`. The **Bookmarked** tab (`app/(tabs)/explore.tsx`) lists everything saved, most recent first, with the same card UI and an unbookmark action, plus a friendly empty state when there's nothing saved yet.
 
 ## Searching articles you've seen
 
@@ -173,7 +185,6 @@ CREATE TABLE IF NOT EXISTS bookmarks (
 - `pageid` is the Wikipedia page ID and serves as the primary key on both tables, so re-saving the same article overwrites rather than duplicates it. `articles` also has a `UNIQUE INDEX` on `pageid` as a belt-and-suspenders guarantee for databases created before this was enforced.
 - `cached_date` (format `YYYY-MM-DD`) scopes "today's" feed — this is what lets the app skip network calls on same-day relaunches, and what `pruneArticles()` uses to expire old rows.
 - `bookmarks` intentionally duplicates article data (title/summary/image/url) rather than just referencing a `pageid` — so a bookmark keeps working even after the source row is pruned from `articles`.
-- The `bookmarked` column on `articles` is currently unused/redundant now that bookmarks have their own table — see [Known limitations](#known-limitations--roadmap).
 - `pruneArticles()` (`db/articles.ts`) runs on every app start: it deletes cached articles older than 7 days, then trims down to the 5,000 most recent if still over that cap.
 
 ## Data source (Wikipedia API)
@@ -194,42 +205,36 @@ Neither endpoint requires an API key.
 
 ## Debug screen
 
-`app/debug.tsx` is a dev-only screen (auto-routed to `/debug` by Expo Router) that lists every cached article and bookmark currently in SQLite, and includes a one-tap "Wipe database" button for resetting to a clean slate during testing. It's linked from the Home screen's loading and loaded states. **Remove or gate this behind `if (__DEV__)` before shipping a release build** — it's not meant for end users.
+`app/debug.tsx` is a dev-only screen (auto-routed to `/debug` by Expo Router) that lists every cached article and bookmark currently in SQLite, and includes a one-tap "Wipe database" button for resetting to a clean slate during testing. The link to it on the Home screen is gated behind `__DEV__`, so it's invisible in release builds — it only shows up when running through `expo start` in development.
 
 ## Building an APK for testing
 
 This project ships with an `eas.json` already configured, so the fastest path to an installable Android build is [EAS Build](https://docs.expo.dev/build/introduction/) — Expo's cloud build service. No local Android SDK is required.
 
 1. **Install and log in to the EAS CLI:**
-```bash
+   ```bash
    npm install -g eas-cli
    eas login
-```
+   ```
 2. **Make sure the `preview` profile builds a raw `.apk`** rather than a Play Store `.aab`. In `eas.json`:
-```json
+   ```json
    "preview": {
      "distribution": "internal",
      "android": { "buildType": "apk" }
    }
-```
-3. **Link the project to your EAS account** (only needed if the `projectId` in `app.json` doesn't already belong to you):
-```bash
-   eas init
-```
-4. **Kick off the build:**
-```bash
+   ```
+3. **Kick off the build:**
+   ```bash
    eas build -p android --profile preview
-```
+   ```
    This uploads your project to Expo's build servers and compiles it into a native Android app. It typically takes 5–15 minutes.
-5. **Download the APK** — once the build finishes, EAS prints a download link and QR code in the terminal. Open the link directly on your Android device, or run:
-```bash
+4. **Download the APK** — once the build finishes, EAS prints a download link and QR code in the terminal. Open the link directly on your Android device, or run:
+   ```bash
    eas build:download
-```
-6. **Install on device** — enable "install unknown apps" for your browser or file manager in Android Settings, then open the downloaded `.apk` file and tap Install.
+   ```
+5. **Install on device** — enable "install unknown apps" for your browser or file manager in Android Settings, then open the downloaded `.apk` file and tap Install.
 
 ### Building locally (no EAS cloud service)
-
-If you'd rather build entirely on your own machine:
 
 ```bash
 npx expo prebuild -p android
@@ -241,7 +246,7 @@ This requires Android Studio (or at least the Android SDK/build tools) and a JDK
 
 ## Building for iOS
 
-iOS builds require a paid Apple Developer account and can only be produced via EAS Build (or a local macOS + Xcode setup) — there's no local-simulator equivalent to a sideloadable `.apk`. Run:
+iOS builds require a paid Apple Developer account and can only be produced via EAS Build (or a local macOS + Xcode setup). Run:
 
 ```bash
 eas build -p ios --profile preview
@@ -264,17 +269,16 @@ and follow the prompts to set up or reuse existing Apple credentials.
 
 - **Blank feed / stuck on loading:** Check your network connection — if every article request fails (batch and fallback both), the feed silently renders empty. Check the console/Metro logs for fetch errors.
 - **"package.json does not exist" error:** You're running an npm/Expo command from inside `app/` instead of the project root. `cd ..` back to `Tangent/` and try again.
-- **Build fails on EAS:** Run `eas build --clear-cache` to rule out a stale dependency cache, and double check `app.json`'s `android.package` / iOS bundle identifier are unique if you've forked this project.
-- **Want a clean slate during testing:** open `/debug` in the app and tap "Wipe database," rather than reinstalling the app.
+- **Build fails on EAS:** Run `eas build --clear-cache` to rule out a stale dependency cache.
+- **Want a clean slate during testing:** run a dev build (`expo start`) and open `/debug` in the app to wipe the local database, rather than reinstalling.
 
 ## Known limitations / roadmap
 
-- The `bookmarked` column on `articles` is now redundant given the separate `bookmarks` table — worth removing in a future migration.
-- `backend/` contains a small Express server that isn't currently called by the app — the feed talks to Wikipedia directly. Either remove this or wire it in if there's a plan to proxy/rate-limit requests server-side, or to add user accounts with synced bookmarks.
+- `backend/` contains a small Express server that isn't currently called by the app — an earlier exploration into user accounts with synced bookmarks was intentionally shelved to keep scope manageable. It's kept around for reference but isn't wired into the app.
 - Search only covers articles already cached locally — there's no way yet to search all of Wikipedia and add a specific article to your feed on demand.
 - `@shopify/flash-list` is installed but the feed still renders with core `FlatList` — swapping it in would improve scroll performance now that cards render images.
 - No retry/error UI for the user when all article fetches fail — currently fails silently to an empty list.
-- `app/debug.tsx` is a development tool and should be removed or gated behind `if (__DEV__)` before a production release.
+- The app is currently locked to light mode by design.
 
 ## Contributing
 
