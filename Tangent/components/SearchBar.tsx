@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
-
+import { Colors } from "../constants/theme";
 type SearchBarProps = {
   onSearch: (query: string) => void;
 };
@@ -25,8 +25,18 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
 };
 
 const styles = StyleSheet.create({
-  container: { paddingHorizontal: 16, paddingTop: 12, backgroundColor: "#f3f4f6" },
-  input: { backgroundColor: "white", borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 16 },
+container: { paddingHorizontal: 16, paddingTop: 12,paddingBottom:12, backgroundColor: Colors.light.background },
+input: {
+  backgroundColor: Colors.light.surface,
+  borderWidth: 1,
+  borderColor: Colors.light.border,
+  borderRadius: 10,
+  paddingHorizontal: 14,
+  paddingVertical: 10,
+  fontSize: 16,
+  fontFamily: "Karla_400Regular",
+  color: Colors.light.text,
+},
 });
 
 export default SearchBar;

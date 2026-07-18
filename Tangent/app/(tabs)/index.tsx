@@ -138,9 +138,11 @@ const HomeScreen = () => {
   if (initialLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <Link href="/debug" style={{ padding: 12 }}>
-          <Text>🛠 Debug</Text>
-        </Link>
+        {__DEV__ && (
+          <Link href="/debug" style={{ padding: 12 }}>
+            <Text>🛠 Debug</Text>
+          </Link>
+        )}
 
         <Image
           source={logo}
@@ -154,9 +156,11 @@ const HomeScreen = () => {
   else{
     return (
       <View style={styles.container}>
-        <Link href="/debug" style={{ padding: 12 }}>
-          <Text>🛠 Debug</Text>
-        </Link>
+        {__DEV__ && (
+          <Link href="/debug" style={{ padding: 12 }}>
+            <Text>🛠 Debug</Text>
+          </Link>
+        )}
 
         <SearchBar onSearch={handleSearch} />
 

@@ -4,9 +4,9 @@ import { FlatList, StyleSheet, Text, View } from "react-native";
 
 import { MaterialIcons } from "@expo/vector-icons";
 import ArticleCard from "../../components/ArticleCard";
+import { Colors } from "../../constants/theme";
 import { getBookmarks, removeBookmark } from "../../db/bookmarks";
 import type { Article } from "../../services/types/article";
-
 export default function ExploreScreen() {
   const [bookmarks, setBookmarks] = useState<Article[]>([]);
 
@@ -70,6 +70,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 32,
+    backgroundColor: Colors.light.background,
   },
 
   emptyTitle: {
@@ -87,6 +88,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: Colors.light.background,
   },
 
   heading: {

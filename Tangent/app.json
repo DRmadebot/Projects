@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "xikipedia",
-    "slug": "xikipedia",
+    "name": "Tangent",
+    "slug": "tangent",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/logoTangent.png",
     "scheme": "xikipedia",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true

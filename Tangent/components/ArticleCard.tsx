@@ -1,7 +1,9 @@
-import { MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
+import * as Clipboard from "expo-clipboard";
 import { Image } from "expo-image";
-import { memo } from "react";
+import { memo, useState } from "react";
 import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { Colors } from "../constants/theme";
 import type { Article } from "../services/types/article";
 
 type ArticleCardProps = {
@@ -10,25 +12,25 @@ type ArticleCardProps = {
   onToggleBookmark: (article: Article) => void;
 };
 
-const ArticleCard = ({
-  article,
-  isBookmarked,
-  onToggleBookmark,
-}: ArticleCardProps) => {
-  const words = article.summary.split(" ");
+const ArticleCard = ({ article, isBookmarked, onToggleBookmark }: ArticleCardProps) => {
+  const [copied, setCopied] = useState(false);
 
-  // Text that appears beside the image
-  const firstPart = words.slice(0, 24).join(" ");
-
-  // Text that appears below the image
-  const secondPart = words.slice(24).join(" ");
+  const handleShare = async () => {
+    if (!article.url) return;
+    await Clipboard.setStringAsync(article.url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
 
   return (
     <View style={styles.card}>
-      <Text style={styles.title}>{article.title}</Text>
+      <Text style={styles.title}>
+        <Text style={styles.mark}></Text>
+        {article.title}
+      </Text>
 
-      <View style={styles.topSection}>
-        <Text style={styles.summaryTop}>{firstPart}</Text>
+      <View style={styles.contentRow}>
+        <Text style={styles.summary}>{article.summary}</Text>
 
         {article.image && (
           <Image
@@ -40,31 +42,40 @@ const ArticleCard = ({
         )}
       </View>
 
-      {secondPart && (
-        <Text style={styles.summaryBottom}>{secondPart}</Text>
-      )}
-
       <View style={styles.actions}>
-        <Pressable onPress={() => onToggleBookmark(article)}>
-          <MaterialIcons
-            name={isBookmarked ? "bookmark" : "bookmark-border"}
-            size={30}
-            color={isBookmarked ? "#e9e50d" : "#22223b"}
+        <Pressable style={styles.actionButton} onPress={() => onToggleBookmark(article)}>
+          <Ionicons
+            name={isBookmarked ? "bookmark" : "bookmark-outline"}
+            size={18}
+            color={Colors.light.accent}
           />
+          <Text style={[styles.actionText, { color: Colors.light.accent }]}>
+            {isBookmarked ? "Saved" : "Save"}
+          </Text>
+        </Pressable>
+
+        <Pressable style={styles.actionButton} onPress={handleShare}>
+          <Ionicons
+            name={copied ? "checkmark" : "link-outline"}
+            size={18}
+            color={Colors.light.accentMoss}
+          />
+          <Text style={[styles.actionText, { color: Colors.light.accentMoss }]}>
+            {copied ? "Copied!" : "Share"}
+          </Text>
         </Pressable>
 
         <Pressable
+          style={styles.actionButton}
           onPress={async () => {
             try {
-              if (article.url) {
-                await Linking.openURL(article.url);
-              }
+              if (article.url) await Linking.openURL(article.url);
             } catch (error) {
               console.log("Could not open link:", error);
             }
           }}
         >
-          <Text style={styles.button}>Read more</Text>
+          <Text style={styles.readMore}>Read more →</Text>
         </Pressable>
       </View>
     </View>
@@ -73,62 +84,77 @@ const ArticleCard = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "white",
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: Colors.light.surface,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    padding: 18,
+    borderRadius: 16,
     margin: 16,
-    overflow: "hidden",
+    shadowColor: "#B8712C",
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+  },
+
+  mark: {
+    color: Colors.light.accent,
   },
 
   title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 8,
+    fontFamily: "Fraunces_600SemiBold",
+    fontSize: 22,
+    color: Colors.light.text,
+    marginBottom: 10,
+    lineHeight: 28,
   },
 
-  topSection: {
+  contentRow: {
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 12,
   },
 
-  summaryTop: {
+  summary: {
     flex: 1,
-    fontSize: 16,
-    lineHeight: 24,
-    maxHeight: 96,
-    textAlign: "justify",
-  },
-
-  summaryBottom: {
-    fontSize: 16,
-    lineHeight: 24,
-    marginTop: 8,
-    textAlign: "justify",
+    fontFamily: "Karla_400Regular",
+    fontSize: 15,
+    lineHeight: 22,
+    color: Colors.light.textMuted,
   },
 
   thumbnail: {
-    width: 130,
-    height: 100,
-    borderRadius: 8,
+    width: 72,
+    height: 72,
+    borderRadius: 10,
   },
 
   actions: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 12,
+    gap: 20,
+    marginTop: 16,
+    paddingTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: Colors.light.border,
   },
 
-  bookmarkText: {
-    fontSize: 16,
-    fontWeight: "bold",
+  actionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
   },
 
-  button: {
-    marginTop: 12,
-    fontSize: 16,
-    fontWeight: "bold",
+  actionText: {
+    fontFamily: "Karla_600SemiBold",
+    fontSize: 14,
+  },
+
+  readMore: {
+    fontFamily: "Karla_700Bold",
+    fontSize: 14,
+    color: Colors.light.text,
+    marginLeft: "auto",
   },
 });
 
