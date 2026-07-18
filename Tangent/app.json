@@ -46,10 +46,11 @@
       "typedRoutes": true,
       "reactCompiler": true
     },
+    "owner": "dakshrishi",
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "cce91799-b4df-4cf0-8074-c5a24f715744"
+        "projectId": "d4961b9e-8527-4118-ac5a-2680d2674fc3"
       }
     }
   }
