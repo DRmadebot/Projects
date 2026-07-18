@@ -286,4 +286,4 @@ Issues and pull requests are welcome. Please run `npm run lint` before submittin
 
 ## License
 
-Add your preferred license here (e.g. MIT).
+MIT — see [LICENSE](./LICENSE) for details.
