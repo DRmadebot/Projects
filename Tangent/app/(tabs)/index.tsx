@@ -2,7 +2,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Link } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, View } from "react-native";
-import logo from "../../assets/images/logoTangent.png";
+import logo from "../../assets/images/logoTangentForREADME.png";
 import ArticleCard from "../../components/ArticleCard";
 import SearchBar from "../../components/SearchBar";
 import { pruneArticles, searchArticlesByTitle } from "../../db/articles";

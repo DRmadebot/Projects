@@ -2,7 +2,7 @@ import type { Article } from "./types/article";
 
 export const fetchRandomArticle = async (): Promise<Article> => {
   const response = await fetch(
-    "https://en.wikipedia.org/w/api.php?action=query&generator=random&grnnamespace=0&grnlimit=1&prop=extracts|pageimages|info&exintro=1&explaintext=1&inprop=url&pithumbsize=300&format=json&origin=*",
+    "https://en.wikipedia.org/w/api.php?action=query&generator=random&grnnamespace=0&grnlimit=1&prop=extracts|pageimages|info&exintro=1&explaintext=1&inprop=url&pithumbsize=600&format=json&origin=*",
     {
       headers: {
         "User-Agent": "Xikipedia/0.1",
@@ -49,7 +49,7 @@ const fetchArticlesSolo = async (count: number): Promise<Article[]> => {
 };
 
 const fetchArticlesBatch = async (count: number): Promise<Article[]> => {
-  const url = `https://en.wikipedia.org/w/api.php?action=query&generator=random&grnnamespace=0&grnlimit=${count}&prop=extracts|pageimages|info&exintro=1&explaintext=1&inprop=url&pithumbsize=300&format=json&origin=*`;
+  const url = `https://en.wikipedia.org/w/api.php?action=query&generator=random&grnnamespace=0&grnlimit=${count}&prop=extracts|pageimages|info&exintro=1&explaintext=1&inprop=url&pithumbsize=600&format=json&origin=*`;
 
   const response = await fetch(url, { headers: { "User-Agent": "Xikipedia/0.1" } });
   if (!response.ok) throw new Error("Batch fetch failed");
