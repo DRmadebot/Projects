@@ -43,6 +43,7 @@ Tangent is a mobile-first content discovery app. Instead of searching for what y
 - **Bounded, self-pruning cache** — the local database automatically drops articles older than 7 days and caps itself at the 5,000 most recent, so long-term use doesn't grow the DB file forever
 - **Bookmarks** — save any article with a tap; bookmarks live in their own tab and persist independently of the feed cache
 - **Search your history** — a search bar on the Home feed finds articles you've already scrolled past, by title, so you can revisit one without waiting to randomly see it again
+- **Share** — copies the article's URL to your clipboard with one tap, so you can paste it wherever you want
 - **Batched fetching with automatic fallback** — articles are normally fetched in a single efficient batch request; if that fails, the app transparently falls back to independent per-article requests so a bad connection doesn't mean an empty feed
 - **Tap to read more** — opens the full Wikipedia article in the system browser via `Linking.openURL`
 - **Haptic tab feedback** on navigation (via `expo-haptics`)
@@ -116,7 +117,7 @@ Tangent/
 │   ├── debug.tsx                Dev-only screen for inspecting/wiping the local DB
 │   └── modal.tsx                Example modal screen
 ├── components/
-│   ├── ArticleCard.tsx           Renders a single article (title, image, summary, bookmark, read-more)
+│   ├── ArticleCard.tsx           Renders a single article (title, image, split-summary text, bookmark, share, read-more)
 │   ├── SearchBar.tsx             Local search input for revisiting seen articles
 │   ├── external-link.tsx        Wrapper for opening links in the system browser
 │   ├── haptic-tab.tsx           Tab bar button with haptic feedback
