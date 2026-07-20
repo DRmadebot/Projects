@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/images/logoTangent.png" alt="Tangent logo" width="120" />
+  <img src="assets/images/logoTangentForREADME.png" alt="Tangent logo" width="120" />
 </p>
 
 <h1 align="center">Tangent</h1>

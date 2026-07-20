@@ -15,6 +15,12 @@ type ArticleCardProps = {
 const ArticleCard = ({ article, isBookmarked, onToggleBookmark }: ArticleCardProps) => {
   const [copied, setCopied] = useState(false);
 
+  const words = article.summary.split(" ");
+  // Text that appears beside the image
+  const firstPart = words.slice(0, 24).join(" ");
+  // Text that appears below, full-width, once the image's height is used up
+  const secondPart = words.slice(24).join(" ");
+
   const handleShare = async () => {
     if (!article.url) return;
     await Clipboard.setStringAsync(article.url);
@@ -25,12 +31,12 @@ const ArticleCard = ({ article, isBookmarked, onToggleBookmark }: ArticleCardPro
   return (
     <View style={styles.card}>
       <Text style={styles.title}>
-        <Text style={styles.mark}></Text>
+        <Text style={styles.mark}>✦ </Text>
         {article.title}
       </Text>
 
-      <View style={styles.contentRow}>
-        <Text style={styles.summary}>{article.summary}</Text>
+      <View style={styles.topSection}>
+        <Text style={styles.summaryTop}>{firstPart}</Text>
 
         {article.image && (
           <Image
@@ -41,6 +47,8 @@ const ArticleCard = ({ article, isBookmarked, onToggleBookmark }: ArticleCardPro
           />
         )}
       </View>
+
+      {secondPart && <Text style={styles.summaryBottom}>{secondPart}</Text>}
 
       <View style={styles.actions}>
         <Pressable style={styles.actionButton} onPress={() => onToggleBookmark(article)}>
@@ -109,23 +117,34 @@ const styles = StyleSheet.create({
     lineHeight: 28,
   },
 
-  contentRow: {
+  topSection: {
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 12,
   },
 
-  summary: {
+  summaryTop: {
     flex: 1,
     fontFamily: "Karla_400Regular",
     fontSize: 15,
     lineHeight: 22,
+    maxHeight: 96,
+    textAlign: "justify",
+    color: Colors.light.textMuted,
+  },
+
+  summaryBottom: {
+    fontFamily: "Karla_400Regular",
+    fontSize: 15,
+    lineHeight: 22,
+    marginTop: 8,
+    textAlign: "justify",
     color: Colors.light.textMuted,
   },
 
   thumbnail: {
-    width: 72,
-    height: 72,
+    width: 130,
+    height: 100,
     borderRadius: 10,
   },
 
