@@ -20,9 +20,11 @@
 - [How the feed works](#how-the-feed-works)
 - [Bookmarks](#bookmarks)
 - [Searching articles you've seen](#searching-articles-youve-seen)
+- [Contribute tab](#contribute-tab)
 - [Database schema](#database-schema)
 - [Data source (Wikipedia API)](#data-source-wikipedia-api)
 - [Debug screen](#debug-screen)
+- [Privacy](#privacy)
 - [Building an APK for testing](#building-an-apk-for-testing)
 - [Building for iOS](#building-for-ios)
 - [Scripts](#scripts)
@@ -44,6 +46,7 @@ Tangent is a mobile-first content discovery app. Instead of searching for what y
 - **Bookmarks** — save any article with a tap; bookmarks live in their own tab and persist independently of the feed cache
 - **Search your history** — a search bar on the Home feed finds articles you've already scrolled past, by title, so you can revisit one without waiting to randomly see it again
 - **Share** — copies the article's URL to your clipboard with one tap, so you can paste it wherever you want
+- **Contribute tab** — quick links to report bugs, suggest features, browse the source, or send feedback directly
 - **Batched fetching with automatic fallback** — articles are normally fetched in a single efficient batch request; if that fails, the app transparently falls back to independent per-article requests so a bad connection doesn't mean an empty feed
 - **Tap to read more** — opens the full Wikipedia article in the system browser via `Linking.openURL`
 - **Haptic tab feedback** on navigation (via `expo-haptics`)
@@ -54,7 +57,7 @@ Tangent is a mobile-first content discovery app. Instead of searching for what y
   <img src="assets/images/architecture-diagram.svg" alt="Tangent architecture diagram" width="720" />
 </p>
 
-Random articles flow in from Wikipedia's API, get normalized and deduplicated in the services layer, and land in a local SQLite database. The Home feed, search bar, and Bookmarks tab all read from that same local cache — nothing in the UI talks to the network directly.
+Random articles flow in from Wikipedia's API, get normalized and deduplicated in the services layer, and land in a local SQLite database. The Home feed, search bar, and Bookmarks tab all read from that same local cache — nothing in the UI talks to the network directly, and nothing about the user is ever collected or transmitted anywhere.
 
 ## Tech stack
 
@@ -67,6 +70,7 @@ Random articles flow in from Wikipedia's API, get normalized and deduplicated in
 | Data source | Wikipedia public API (`en.wikipedia.org/w/api.php` + REST `page/summary`) |
 | Language | TypeScript |
 | Images | `expo-image` |
+| Clipboard | `expo-clipboard` |
 | List rendering | `react-native` `FlatList` (`@shopify/flash-list` installed, not yet wired in) |
 | Icons | `@expo/vector-icons`, `expo-symbols` |
 | Linting | ESLint (`eslint-config-expo`) |
@@ -110,14 +114,15 @@ No environment variables or API keys are required — the app talks to Wikipedia
 Tangent/
 ├── app/                        Screens and navigation (Expo Router file-based routing)
 │   ├── (tabs)/
-│   │   ├── _layout.tsx         Tab navigator (Home / Bookmarked)
+│   │   ├── _layout.tsx         Tab navigator (Home / Bookmarked / Contribute)
 │   │   ├── index.tsx           Home screen — the main feed + search bar
-│   │   └── explore.tsx         Bookmarked screen — saved articles
+│   │   ├── explore.tsx         Bookmarked screen — saved articles
+│   │   └── contribute.tsx      Links to report bugs, suggest features, view source, send feedback
 │   ├── _layout.tsx             Root layout: theme provider, stack navigator
 │   ├── debug.tsx                Dev-only screen for inspecting/wiping the local DB
 │   └── modal.tsx                Example modal screen
 ├── components/
-│   ├── ArticleCard.tsx           Renders a single article (title, image, split-summary text, bookmark, share, read-more)
+│   ├── ArticleCard.tsx           Renders a single article (title, full-width image, justified summary, bookmark, share, read-more)
 │   ├── SearchBar.tsx             Local search input for revisiting seen articles
 │   ├── external-link.tsx        Wrapper for opening links in the system browser
 │   ├── haptic-tab.tsx           Tab bar button with haptic feedback
@@ -157,6 +162,10 @@ Tapping the bookmark icon on any `ArticleCard` saves it to a dedicated `bookmark
 ## Searching articles you've seen
 
 The search bar on the Home screen (`components/SearchBar.tsx`) queries the local SQLite cache directly (`searchArticlesByTitle` in `db/articles.ts`) — it's a `LIKE` match against `title`, so it only finds articles you've already been served, not a live Wikipedia-wide search. This is intentional: the point is quickly finding something you scrolled past earlier, not discovering new articles. While search results are showing, infinite-scroll pagination (`onEndReached`) is disabled, since there's nothing more to load for a fixed result set.
+
+## Contribute tab
+
+The **Contribute** tab (`app/(tabs)/contribute.tsx`) gives users a direct way to report bugs, suggest features, browse the source on GitHub, or send feedback by email — all as simple outbound links, with no backend or account required. It's meant to keep the feedback loop open now that the app is public.
 
 ## Database schema
 
@@ -207,6 +216,12 @@ Neither endpoint requires an API key.
 ## Debug screen
 
 `app/debug.tsx` is a dev-only screen (auto-routed to `/debug` by Expo Router) that lists every cached article and bookmark currently in SQLite, and includes a one-tap "Wipe database" button for resetting to a clean slate during testing. The link to it on the Home screen is gated behind `__DEV__`, so it's invisible in release builds — it only shows up when running through `expo start` in development.
+
+## Privacy
+
+Tangent doesn't collect, store, or transmit any personal data. Articles and bookmarks live only in a local SQLite database on-device, the app talks directly to Wikipedia's public API with no login or account involved, and there's no analytics or tracking of any kind.
+
+A privacy policy has been drafted but isn't hosted anywhere publicly yet — this is required before a Play Store submission (Google requires a live URL in the listing, even for apps that collect nothing). Once hosted (e.g. via GitHub Pages), the link belongs here.
 
 ## Building an APK for testing
 
@@ -277,13 +292,13 @@ and follow the prompts to set up or reuse existing Apple credentials.
 
 - `backend/` contains a small Express server that isn't currently called by the app — an earlier exploration into user accounts with synced bookmarks was intentionally shelved to keep scope manageable. It's kept around for reference but isn't wired into the app.
 - Search only covers articles already cached locally — there's no way yet to search all of Wikipedia and add a specific article to your feed on demand.
-- `@shopify/flash-list` is installed but the feed still renders with core `FlatList` — swapping it in would improve scroll performance now that cards render images.
+- `@shopify/flash-list` is installed but the feed still renders with core `FlatList` — swapping it in would improve scroll performance now that cards render full-width images.
 - No retry/error UI for the user when all article fetches fail — currently fails silently to an empty list.
 - The app is currently locked to light mode by design.
 
 ## Contributing
 
-Issues and pull requests are welcome. Please run `npm run lint` before submitting a PR.
+Issues and pull requests are welcome — or use the in-app **Contribute** tab to report a bug or suggest a feature directly. Please run `npm run lint` before submitting a PR.
 
 ## License
 
