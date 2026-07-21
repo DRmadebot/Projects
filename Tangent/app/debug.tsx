@@ -5,6 +5,9 @@ import { clearArticles, getAllArticles } from "../db/articles";
 import { getBookmarks } from "../db/bookmarks";
 
 export default function DebugScreen() {
+  if (!__DEV__) {
+    return null; // or redirect: <Redirect href="/" />
+  }
   const [articles, setArticles] = useState<any[]>([]);
   const [bookmarks, setBookmarks] = useState<any[]>([]);
 
