@@ -5,6 +5,7 @@ import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Ionicons } from "@expo/vector-icons";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -28,6 +29,13 @@ export default function TabLayout() {
         options={{
           title: 'Bookmarked',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="bookmark.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="contribute"
+        options={{
+          title: 'Contribute',
+          tabBarIcon: ({ color, size }) => <Ionicons name="logo-github" size={size ?? 28} color={color} />,
         }}
       />
     </Tabs>
