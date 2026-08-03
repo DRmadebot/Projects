@@ -60,8 +60,26 @@ const Landing = ()=>{
             </div>
             </section>
 
-            <section id="features">
-                {features.map((feature)=>(<FeatureCard title={feature.title} description={feature.description}/>))}
+            <section id="features" className="bg-gray-50 px-6 py-24">
+                <div className="mx-auto max-w-6xl">
+                    <h2 className="text-center text-4xl font-bold text-gray-900">
+                    Why Choose ComplyEasy?
+                    </h2>
+
+                    <p className="mx-auto mt-4 max-w-2xl text-center text-lg text-gray-600">
+                    Everything you need to manage compliance, avoid missed renewals,
+                    and stay audit-ready.
+                    </p>
+
+                    <div className="mt-14 grid gap-8 md:grid-cols-2">
+                    {features.map((feature) => (
+                        <FeatureCard
+                        key={feature.title}
+                        {...feature}
+                        />
+                    ))}
+                    </div>
+                </div>
             </section>
         </div>
 
