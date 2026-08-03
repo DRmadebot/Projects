@@ -1,75 +1,145 @@
-# React + TypeScript + Vite
+<h1 align="center">Venture</h1>
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<p align="center">
+  A landing page and app shell for <strong>ComplyEasy AI</strong> — a compliance tracker that keeps businesses on top of licenses, certificates, and regulatory deadlines.<br/>
+  Built with React, TypeScript, and Vite.
+</p>
 
-Currently, two official plugins are available:
+<p align="center">
+  🚧 <strong>Work in progress.</strong> This README describes the project as it stands right now and will be updated as features land — see <a href="#status--roadmap">Status &amp; roadmap</a> for what's real vs. planned.
+</p>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Table of contents
 
-## React Compiler
+- [Overview](#overview)
+- [Status & roadmap](#status--roadmap)
+- [Tech stack](#tech-stack)
+- [Getting started](#getting-started)
+- [Project structure](#project-structure)
+- [Routes](#routes)
+- [Styling](#styling)
+- [Scripts](#scripts)
+- [Contributing](#contributing)
+- [License](#license)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Overview
 
-## Expanding the ESLint configuration
+Venture is the codebase for **ComplyEasy AI**, a product aimed at businesses that need to track compliance certificates, licenses, and regulatory deadlines without falling back on spreadsheets and sticky notes. The pitch: track everything in one place, get intelligent reminders before things expire, and ask an AI assistant plain-English questions about your compliance status.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Right now the repo is a single-page marketing/landing experience plus routing stubs for the parts of the app that don't exist yet. There's no backend, no auth, and no real dashboard — this is the shell the product will be built into.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Status & roadmap
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+This project changes shape often, so treat anything below as a snapshot rather than a promise.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+**What's built:**
+- Landing page (`/`) — hero section, feature grid, navbar, all styled with Tailwind
+- Client-side routing scaffolding via `react-router-dom`
 
+**What's stubbed (routes exist, no real content yet):**
+- `/login` — renders a placeholder heading only
+- `/dashboard` — renders a placeholder heading only
+
+**What's not started:**
+- Authentication / accounts
+- Any backend or database
+- The actual certificate/license tracking functionality
+- Reminders/notifications
+- The AI compliance assistant
+- Pricing page (linked from the navbar, route doesn't exist yet)
+- A `/register` route (linked from the landing page's CTA, route doesn't exist yet)
+
+If you're reading this some time after it was written, the code is the source of truth over this list — check `src/App.tsx` for the current routes.
+
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| Framework | [React](https://react.dev) 19 |
+| Build tool | [Vite](https://vitejs.dev) |
+| Language | TypeScript |
+| Routing | [react-router-dom](https://reactrouter.com) v6 |
+| Styling | [Tailwind CSS](https://tailwindcss.com) v4 (via `@tailwindcss/vite`) |
+| Linting | ESLint (`typescript-eslint`, `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh`) |
+
+## Getting started
+
+### Prerequisites
+
+- Node.js (LTS recommended)
+- npm
+
+### Installation
+
+```bash
+git clone https://github.com/DRmadebot/Projects.git
+cd Projects/Venture
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Running the app
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+npm run dev
+```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+This starts the Vite dev server (with hot module reload) and prints a local URL — open it in your browser to view the landing page.
+
+No environment variables or API keys are required yet, since there's no backend to talk to.
+
+## Project structure
 
 ```
+Venture/
+├── src/
+│   ├── pages/
+│   │   └── Landing.tsx        The marketing landing page (hero + feature grid)
+│   ├── components/
+│   │   ├── Navbar.tsx         Top nav: logo, Features/Pricing links, Login/Get Started
+│   │   └── FeatureCard.tsx    Reusable card for a single feature (title + description)
+│   ├── assets/                 Hero image and Vite/React starter icons
+│   ├── App.tsx                 Route definitions (BrowserRouter + Routes)
+│   ├── main.tsx                 App entry point, mounts <App/> to #root
+│   ├── index.css                Tailwind import
+│   └── App.css                  Leftover styling from the Vite starter template (currently unused)
+├── public/
+│   ├── favicon.svg
+│   └── icons.svg
+├── index.html                   HTML entry point, page title still "venture"
+├── vite.config.ts               Vite config (React + Tailwind plugins)
+├── eslint.config.js
+└── tsconfig*.json
+```
+
+## Routes
+
+Defined in `src/App.tsx`:
+
+| Path | Renders |
+|---|---|
+| `/` | `Landing` — the full marketing page |
+| `/login` | Placeholder `<h1>Login page</h1>` |
+| `/dashboard` | Placeholder `<h1>Dashboard</h1>` |
+
+The navbar and landing page also link out to `/register`, `/features`, and `/pricing`, which don't have routes defined yet — clicking those in the current build will render nothing (no matching `<Route>`, no catch-all/404 page either).
+
+## Styling
+
+Styling is done entirely with Tailwind utility classes inline in components — there's no separate design system or component library yet. `src/App.css` is left over from the default Vite + React starter template and isn't imported anywhere, so it currently has no effect; it's flagged here so nobody spends time debugging styles that live in a dead file.
+
+## Scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start the Vite dev server |
+| `npm run build` | Type-check (`tsc -b`) then build for production |
+| `npm run lint` | Run ESLint |
+| `npm run preview` | Preview the production build locally |
+
+## Contributing
+
+This is early and moving fast — if you're picking up work here, it's worth confirming with whoever's driving the project before starting on anything not listed under "What's not started" above, since priorities are likely to shift. Run `npm run lint` before submitting a PR.
+
+## License
+
+No license file yet — treat this as all-rights-reserved until one is added.
