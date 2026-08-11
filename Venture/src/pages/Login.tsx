@@ -1,7 +1,9 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { useState } from "react";
 
 const Login = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -12,17 +14,39 @@ const Login = () => {
             [event.target.name]:event.target.value,
         })
     }
-    const handleSubmit=(event: React.FormEvent<HTMLFormElement>)=>{
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        if (
-            !formData.email ||
-            !formData.password
-        ) {
+
+        if (!formData.email || !formData.password) {
             alert("Please fill all fields.");
             return;
         }
-        console.log(formData);
-    }
+
+        try {
+            const response = await axios.post(
+                "http://127.0.0.1:8000/login",
+                new URLSearchParams({
+                    username: formData.email,
+                    password: formData.password,
+                }),
+                {
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                }
+            );
+
+            const token = response.data.access_token;
+
+            localStorage.setItem("token", token);
+
+            navigate("/dashboard");
+
+        } catch (error) {
+            console.error(error);
+            alert("Invalid email or password.");
+        }
+    };
     return (
         <div className="flex min-h-screen items-center justify-center bg-gray-50 px-6">
         <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">

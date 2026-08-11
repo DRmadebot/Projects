@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing"
 import Register from "./pages/Register";
 import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard"
+import ProtectedRoute from "./components/ProtectedRoute";
 const App = ()=>{
   return(
     <BrowserRouter>
@@ -9,7 +11,9 @@ const App = ()=>{
         <Route path="/" element={<Landing/>}/>
         <Route path="/login" element={<Login />}/>
         <Route path="/register" element={<Register/>}/>
-        <Route path="/dashboard" element={<h1>Dashboard</h1>}/>
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   )
