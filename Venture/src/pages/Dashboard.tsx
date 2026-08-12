@@ -1,22 +1,7 @@
+import { useEffect, useState } from "react";
 import StatCard from "../components/StatCard";
 import CertificateCard from "../components/CertificateCard";
-const stats = [
-    {
-        title: "Active Certificates",
-        value: "12",
-        description: "Currently valid",
-    },
-    {
-        title: "Expiring Soon",
-        value: "3",
-        description: "Within the next 30 days",
-    },
-    {
-        title: "Compliance Score",
-        value: "87%",
-        description: "Overall compliance health",
-    },
-];
+import api from "../api/api";
 
 interface Certificate {
     id: number;
@@ -26,39 +11,33 @@ interface Certificate {
     status: "Active" | "Expiring Soon" | "Expired";
 }
 
-const certificates: Certificate[] = [
-    {
-        id: 1,
-        name: "Factory License",
-        authority: "Punjab Pollution Control Board",
-        expiryDate: "Aug 18, 2026",
-        status: "Expiring Soon",
-    },
-    {
-        id: 2,
-        name: "Fire Safety Certificate",
-        authority: "Fire Department",
-        expiryDate: "Sep 12, 2026",
-        status: "Active",
-    },
-    {
-        id: 3,
-        name: "GST Registration",
-        authority: "GST Department",
-        expiryDate: "Dec 20, 2026",
-        status: "Active",
-    },
-];
-
-
-
-
-
-
-
 const Dashboard = () => {
+    const [stats, setStats] = useState({
+        activeCertificates: 0,
+        expiringSoon: 0,
+        complianceScore: 0,
+    });
+
+    const [certificates, setCertificates] = useState<Certificate[]>([]);
+
+    useEffect(() => {
+        const fetchDashboard = async () => {
+            try {
+                const response = await api.get("/dashboard");
+
+                setStats(response.data.stats);
+                setCertificates(response.data.certificates);
+            } catch (error) {
+                console.error("Failed to fetch dashboard:", error);
+            }
+        };
+
+        fetchDashboard();
+    }, []);
+
     return (
         <div className="min-h-screen bg-gray-50">
+
             {/* Sidebar */}
             <aside className="fixed left-0 top-0 h-screen w-64 border-r bg-white p-6">
                 <h1 className="text-2xl font-bold text-blue-600">
@@ -86,6 +65,7 @@ const Dashboard = () => {
 
             {/* Main content */}
             <main className="ml-64 p-10">
+
                 <h2 className="text-3xl font-bold text-gray-900">
                     Welcome back!
                 </h2>
@@ -96,12 +76,32 @@ const Dashboard = () => {
 
                 {/* Stats */}
                 <div className="mt-8 grid gap-6 md:grid-cols-3">
-                    {stats.map(stat=>
-                        <StatCard key={stat.title} title={stat.title} value={stat.value} description={stat.description}></StatCard>
-                    )}
+
+                    <StatCard
+                        title="Active Certificates"
+                        value={stats.activeCertificates.toString()}
+                        description="Currently valid"
+                    />
+
+                    <StatCard
+                        title="Expiring Soon"
+                        value={stats.expiringSoon.toString()}
+                        description="Within the next 30 days"
+                    />
+
+                    <StatCard
+                        title="Compliance Score"
+                        value={`${stats.complianceScore}%`}
+                        description="Overall compliance health"
+                    />
+
                 </div>
+
+                {/* Certificates */}
                 <section className="mt-10">
+
                     <div className="flex items-center justify-between">
+
                         <div>
                             <h2 className="text-xl font-bold text-gray-900">
                                 Your Certificates
@@ -115,6 +115,7 @@ const Dashboard = () => {
                         <button className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700">
                             + Add Certificate
                         </button>
+
                     </div>
 
                     <div className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -125,7 +126,9 @@ const Dashboard = () => {
                             />
                         ))}
                     </div>
+
                 </section>
+
             </main>
         </div>
     );
