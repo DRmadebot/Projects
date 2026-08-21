@@ -1,4 +1,9 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
+
+class Note(BaseModel):
+    title:str
+    content:str
 
 app = FastAPI()
 
@@ -9,3 +14,8 @@ async def health():
 @app.get("/api/notes")
 async def notes():
     return {"notes":[]}
+
+@app.post("/api/notes",status_code=201)
+async def create_note(note:Note):
+    returnedNote = {"title":note.title,"content":note.content}
+    return returnedNote
