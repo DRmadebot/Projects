@@ -16,7 +16,6 @@ def test_create_note():
         }
     )
     assert response.status_code==201
-    assert response.json()=={
-        "title":"New beginnings!",
-        "content":"Hello World"
-    }
+    assert response.json()["title"] == "New beginnings!"
+    assert response.json()["content"] == "Hello World"
+    assert response.json()["id"] is not None
