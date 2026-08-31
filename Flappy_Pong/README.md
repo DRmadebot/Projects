@@ -1,108 +1,169 @@
-# Flappy Pong
-## Video Demo : https://www.youtube.com/watch?v=qh_YU6wsbvQ
-## Description
+# 🐦🏓 Flappy Pong
 
-**Flappy Pong** is a 2D arcade-style game that combines elements of two classic video games: Flappy Bird and Pong. In this game, the player controls a flappy paddle that must continuously bounce a ball while avoiding obstacles. The aim is to survive as long as possible, maintaining ball control while reacting to the increasing difficulty over time. With its fast-paced action and simple yet challenging mechanics, Flappy Pong is a fun and addictive arcade experience.
+**A gravity-defying mashup of Flappy Bird and Pong**, built in Lua with the LÖVE 2D framework.
 
-This project was developed as the final submission for CS50x – Introduction to Computer Science, offered by Harvard University. As part of the course, students are tasked with creating a project that demonstrates their understanding of programming concepts, algorithms, and game development. In this case, the project combines a blend of classic game mechanics with new, creative twists that make it unique and fun to play.
+[![Made with LÖVE](https://img.shields.io/badge/Made%20with-L%C3%96VE-EA316E.svg?style=flat-square&logo=love&logoColor=white)](https://love2d.org/)
+[![Language](https://img.shields.io/badge/Language-Lua-2C2D72.svg?style=flat-square&logo=lua)](https://www.lua.org/)
+[![CS50x](https://img.shields.io/badge/CS50x-Final%20Project-A51C30.svg?style=flat-square)](https://cs50.harvard.edu/x/)
+[![License](https://img.shields.io/badge/License-Educational-lightgrey.svg?style=flat-square)](#-license)
 
-## How to Play
+▶️ **[Watch the demo video](https://www.youtube.com/watch?v=qh_YU6wsbvQ)**
 
-- Set a **Winscore** that you must reach in order to finish the game.
-- Use the **W** to move the left paddle up and the **UP** arrow key to move the right paddle up.
-- Keep the ball bouncing off your paddle.
-- Avoid missing the ball — letting it pass will result in a point gain for the other player.
-- Try to acheive the winscore before your opponent.
+---
 
+## 📖 Table of Contents
 
+- [About the Project](#-about-the-project)
+- [Features](#-features)
+- [How to Play](#-how-to-play)
+- [Controls](#-controls)
+- [Getting Started](#-getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Running with LÖVE](#option-1-running-with-löve-recommended)
+  - [Building a Standalone Windows Executable](#option-2-building-a-standalone-windows-executable)
+- [Project Structure](#-project-structure)
+- [How It Works](#-how-it-works)
+- [Tech Stack](#-tech-stack)
+- [Roadmap / Ideas for Improvement](#-roadmap--ideas-for-improvement)
+- [Author](#-author)
+- [Acknowledgments](#-acknowledgments)
+- [License](#-license)
 
-## Features
+---
 
-- Classic Pong physics with Flappy Bird-style controls
-- Increasing difficulty and game speed over time
-- Score tracking
-- Retro-styled graphics and sound effects
-- Game over and restart functionality
+## 🎮 About the Project
 
-## How to Run
+**Flappy Pong** takes the two-paddle simplicity of *Pong* and swaps out the usual "move up and down freely" controls for *Flappy Bird*-style gravity: each paddle constantly falls and can only be launched upward with a well-timed key press. The result is a frantic, physics-driven twist on a classic — you're not just tracking the ball, you're fighting gravity to be in the right place at the right time.
 
-### Option 1: Using LÖVE (Recommended for Developers)
+Two players compete locally on the same keyboard, rallying the ball back and forth. Every paddle hit speeds the ball up a little more, so rallies get progressively harder to sustain. Miss the ball, and your opponent scores. First to reach the target score wins.
 
-1. [Download LÖVE](https://love2d.org/) (version 11.4 or compatible).
-2. Download or clone this repository.
-3. Open a terminal and navigate to the project folder.
-4. Run the game using:
+This project was built as the **final submission for [CS50x](https://cs50.harvard.edu/x/) — Harvard University's Introduction to Computer Science** — and demonstrates state-machine design, 2D collision detection, simple physics simulation, and audio/visual polish using the LÖVE 2D game framework.
 
+## ✨ Features
+
+- 🏐 **Classic Pong physics** — a ball that bounces off the top/bottom walls and accelerates on every paddle hit
+- 🐤 **Flappy Bird-style controls** — paddles are constantly pulled down by gravity and must be "flapped" upward
+- 📈 **Escalating difficulty** — the ball speeds up ~3% with every successful hit, so rallies get progressively tougher
+- 🎯 **Configurable win condition** — set your own target score before each match
+- 🔊 **Full sound design** — dedicated sound effects for serves, bounces, paddle hits, scoring, and match end
+- 🎨 **Retro-styled visuals** — custom sprites, background art, and pixel-style fonts
+- 🔁 **Full game loop** — title screen → win-score selector → serve/rally → match end → restart
+- 🖥️ **Resizable window** with resolution-independent rendering (via the `push` library)
+
+## 🕹️ How to Play
+
+The game flows through five screens:
+
+1. **Title Screen** — press `Enter` to begin.
+2. **Win-Score Selector** — choose how many points are needed to win the match.
+3. **Ready Screen** — shows who serves first; press `Enter` to launch the rally.
+4. **Rally (Serve state)** — the actual gameplay. Keep the ball alive by flapping your paddle into it.
+5. **Finish Screen** — announces the winner; press `Enter` to return to the title screen and play again.
+
+**Objective:** Score points by getting the ball past your opponent's paddle, and avoid letting it past your own. Whoever reaches the chosen win score first takes the match.
+
+## ⌨️ Controls
+
+| Action | Key |
+|---|---|
+| Flap the **left** paddle (Player 1) upward | `W` |
+| Flap the **right** paddle (Player 2) upward | `↑` Up Arrow |
+| Confirm / Start / Advance screens | `Enter` / `Return` |
+| Increase win score (selector screen) | `↑` Up Arrow |
+| Decrease win score (selector screen) | `↓` Down Arrow |
+| Quit the game | `Esc` |
+
+Both paddles are constantly pulled downward by gravity — if you stop pressing your key, your paddle sinks toward the bottom of the screen, just like in Flappy Bird.
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- [LÖVE 2D](https://love2d.org/) **version 11.4** or a compatible release (only needed if you're running the game from source rather than a pre-built executable)
+
+### Option 1: Running with LÖVE (Recommended)
+
+1. [Download and install LÖVE](https://love2d.org/) for your operating system.
+2. Clone or download this repository:
+   ```bash
+   git clone https://github.com/DRmadebot/Projects.git
+   cd Projects/Flappy_Pong
+   ```
+3. Run the game:
    ```bash
    love .
    ```
+   > On Windows, you can also drag the `Flappy_Pong` folder directly onto `love.exe`.
 
-### Option 2: Windows Executable (No Installation Required)
+### Option 2: Building a Standalone Windows Executable
 
-> *(Only applicable if you’ve built the .exe file)*
-
-1. Run the `Flappy_Pong.exe` file.
-2. Ensure the required `.dll` files are in the same folder.
-3. No need to install LÖVE separately.
-
-## Installation / Build Instructions
-
-To build a standalone executable for Windows:
-
-1. Zip the project contents with `main.lua` at the root level and rename the archive to `Flappy_Pong.love`.
-2. Download the LÖVE Windows `.zip` release from [love2d.org](https://love2d.org/).
-3. Run the following command in Command Prompt (from the folder containing `love.exe` and `Flappy_Pong.love`):
-
+1. Zip the contents of the `Flappy_Pong` folder (with `main.lua` at the **root** of the archive) and rename it to `Flappy_Pong.love`.
+2. Download the LÖVE **Windows** `.zip` release from [love2d.org](https://love2d.org/).
+3. From a folder containing both `love.exe` and `Flappy_Pong.love`, run:
    ```cmd
    copy /b love.exe+Flappy_Pong.love Flappy_Pong.exe
    ```
+4. Copy the required `.dll` files from the LÖVE distribution into the same folder as `Flappy_Pong.exe`.
+5. Launch `Flappy_Pong.exe` — no separate LÖVE installation required.
 
-4. Include all required `.dll` files from the LÖVE distribution in the same folder as `Flappy_Pong.exe`.
-
-## Files and Structure
+## 📁 Project Structure
 
 ```
 Flappy_Pong/
-├── main.lua
-├── Paddle.lua
-├── Ball.lua
-├── StateMachine.lua
-├── class.lua
-├── fonts/
-├── libraries/
-├── sounds/
-├── sprites/
+├── main.lua              # Entry point — loads assets, sets up the window and state machine
+├── Paddle.lua             # Paddle class: gravity, movement, and screen-boundary clamping
+├── Ball.lua               # Ball class: movement, wall bouncing, scoring, and win detection
+├── StateMachine.lua       # Lightweight finite-state machine driving the game screens
+├── class.lua              # Third-party Lua "class" implementation (OOP support)
 ├── states/
+│   ├── BaseState.lua      # Base/default state with no-op lifecycle methods
+│   ├── Title.lua          # Title screen
+│   ├── Selector.lua       # Win-score selection screen
+│   ├── Play.lua           # "Ready to serve" screen
+│   ├── Serve.lua          # Active gameplay / rally screen
+│   └── Finish.lua         # Match-end / winner screen
+├── libraries/
+│   └── push.lua           # Resolution-independent rendering helper
+├── fonts/                 # Custom fonts used across the UI
+├── sprites/               # Ball, paddle, and background art
+├── sounds/                # SFX and music (serve, bounce, score, win, title, finish)
 └── README.md
 ```
-## About Lua
 
-Lua is a lightweight, high-performance scripting language designed for embedding in applications. Its simplicity and flexibility make it a popular choice for game development, embedded systems, and web applications. Originally developed in 1993 by a team at the Pontifical Catholic University of Rio de Janeiro, Lua’s design focuses on being small, fast, and easy to extend.
+## 🔍 How It Works
 
-The language supports procedural, object-oriented, and functional programming paradigms, offering developers a versatile tool for a wide range of tasks. One of Lua's most powerful features is its powerful and easy-to-use table data structure, which serves as the primary building block for arrays, dictionaries, and objects.
+- **State machine:** `StateMachine.lua` swaps between five state objects (`Title`, `Selector`, `Play`, `Serve`, `Finish`), each implementing `enter()`, `update(dt)`, and `render()`. This keeps each screen's logic isolated and easy to extend.
+- **Gravity-based paddles:** each `Paddle` accumulates downward velocity every frame (`GRAVITY = 500`) and is clamped to the top/bottom of the screen. Pressing your key sets a strong upward velocity (`JUMP_SPEED = -150`), producing the signature Flappy Bird "flap."
+- **Ball physics:** the `Ball` moves on both axes, reverses vertical direction when it hits the top or bottom wall, and reverses/accelerates horizontal direction (`×1.03`) on every paddle collision — a nod to Pong's classic speed-up mechanic.
+- **Scoring & win condition:** when the ball crosses a side of the screen, the opposing player scores and the ball resets toward the player who was scored on. Once a player's score reaches the chosen `winscore`, the game transitions to the `Finish` state.
+- **Resolution independence:** the `push` library renders the game at a fixed virtual resolution (`600×350`) and scales it up to the actual window size (`1280×720` by default, resizable), keeping pixel art crisp at any window size.
 
-Lua is frequently used in game engines like LÖVE and Corona SDK, allowing developers to create complex games with minimal performance overhead. With its straightforward syntax, efficient memory management, and strong community support, Lua has become a staple for developers seeking an embedded scripting solution.
+## 🛠️ Tech Stack
 
-## About LÖVE 2D
+**[Lua](https://www.lua.org/)** — a lightweight, high-performance scripting language originally developed in 1993 at the Pontifical Catholic University of Rio de Janeiro. Its simple syntax, table-based data structures, and small footprint make it a popular embedded language for games and applications.
 
-LÖVE 2D (commonly known as Love2D) is an open-source game development framework designed to make it easy for developers to create 2D games in Lua. It provides a simple and intuitive interface, empowering both beginners and experienced programmers to bring their game ideas to life with minimal effort. Released in 2007, LÖVE has grown into a widely used tool for indie game development.
+**[LÖVE 2D](https://love2d.org/)** — an open-source 2D game framework for Lua, first released in 2007. It provides built-in graphics, audio, physics, and input handling, letting developers focus on gameplay rather than low-level engine code, with support for Windows, macOS, and Linux.
 
-The framework includes built-in support for essential game elements like graphics, audio, physics, and input handling, allowing developers to focus on creative aspects without worrying about the low-level implementation. LÖVE 2D's reliance on Lua as its scripting language makes it lightweight and highly flexible, while its strong performance ensures smooth gameplay experiences even on lower-end systems.
+## 🗺️ Roadmap / Ideas for Improvement
 
-LÖVE's vibrant community contributes a wealth of tutorials, libraries, and examples, making it an ideal choice for those looking to quickly prototype or fully develop 2D games. Its cross-platform capabilities (Windows, macOS, Linux, and mobile) make LÖVE a versatile tool for game developers worldwide.
+- [ ] Single-player mode with a basic AI opponent
+- [ ] On-screen key-binding customization
+- [ ] Difficulty presets (starting ball speed / acceleration rate)
+- [ ] Local high-score / longest-rally tracking
+- [ ] Packaged builds for macOS and Linux
 
-## Author
+## 👤 Author
 
 **Daksh Rishi**
-CS50 Final Project – 2025  
+CS50 Final Project — 2025
 HarvardX / edX / CS50x
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
-- LÖVE 2D Game Framework
-- Harvard CS50 Team
-- Sound and sprite assets are either self-created or royalty-free.
+- [LÖVE 2D](https://love2d.org/) game framework
+- The Harvard CS50 team and course staff
+- Sound effects and sprites are self-created or royalty-free
 
-## License
+## 📄 License
 
-This project is for educational purposes as part of CS50x. Feel free to fork, modify, or distribute with credit. This project is for educational purposes as part of CS50x, and it is not intended for commercial use.
+This project was built for educational purposes as part of CS50x. You're welcome to fork, modify, and distribute it with credit. It is **not intended for commercial use**.
