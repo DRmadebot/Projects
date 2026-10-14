@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>classnotes-ai</title>
+</head>
+<body>
+  <h1>classnotes-ai</h1>
+
+  <section>
+    <button id="check">Check Ollama</button>
+    <ul id="models"></ul>
+    <p id="error"></p>
+  </section>
+
+  <section>
+    <input type="file" id="file" accept="application/pdf">
+    <p id="info"></p>
+  </section>
+
+  <section>
+    <pre id="chunks"></pre>
+  </section>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+    const OLLAMA = "http://localhost:11434";
+    let pages = [];
+
+    async function checkOllama() {
+      const list = document.querySelector("#models");
+      const error = document.querySelector("#error");
+      list.textContent = "";
+      error.textContent = "";
+
+      try {
+        const response = await fetch(OLLAMA + "/api/tags");
+        const data = await response.json();
+        console.log(data);
+
+        for (const model of data.models) {
+          const li = document.createElement("li");
+          li.textContent = model.name;
+          list.appendChild(li);
+        }
+      } catch (e) {
+        error.textContent = "Can't reach Ollama. Is it running?";
+      }
+    }
+
+    document.querySelector("#check").addEventListener("click", checkOllama);
+
+    async function readPdf(file) {
+      const buffer = await file.arrayBuffer();               // like opening the file as raw bytes
+      const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+
+      const result = [];
+      console.log(pdf)
+      for (let i = 1; i <= pdf._pdfInfo.numPages; i++) {                    // which property holds the page count?
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        console.log(content.items);                           // LOOK at this for page 1 first
+
+        let text = "";
+        for (const item of content.items) {
+          text += item.str;                                   // which property holds the text?
+          if (item.hasEOL){
+            text+='\n';
+          }else{
+            text+=" ";
+          }
+        }
+
+         result.push([i, text.trim()]);                        
+      }
+      return result;
+    }
+    function countWords(text) {
+      return text.split(/\s+/).filter(Boolean).length;
+    }
+
+    function createChunks(pages, maxWords, maxPages) {
+      const chunks = [];
+      let currentChunk = [];
+      let currentWords = 0;
+
+      for (const [pageNumber, text] of pages) {
+        const pageWords = countWords(text);            
+
+        if (currentChunk.length !=0 && (currentChunk.length >= maxPages || currentWords+pageWords > maxWords)) {                        // chunk is non-empty AND (too many words OR too many pages)
+          chunks.push(currentChunk);
+          currentChunk = [];
+          currentWords = 0;
+        }
+
+        currentChunk.push([pageNumber, text]);
+        currentWords += pageWords;
+      }
+
+      if(currentChunk.length!=0){
+        chunks.push(currentChunk);
+      }
+
+      return chunks;
+    }
+
+  document.querySelector("#file").addEventListener("change", async (event) => {
+    const file = event.target.files[0];
+    pages = await readPdf(file);
+    document.querySelector("#info").textContent = `${pages.length} pages loaded`;
+
+    const chunks = createChunks(pages, 1000, 5);
+    let report = `Total pages: ${pages.length}\nTotal chunks: ${chunks.length}\n`;
+
+    chunks.forEach((chunk, i) => {
+      const firstPage = chunk[0][0];
+      const lastPage = chunk[chunk.length - 1][0];
+
+      let words = 0;
+      for (const [pageNumber, text] of chunk) {
+        words += countWords(text);
+      }
+      report += `Chunk ${i + 1}: pages ${firstPage}–${lastPage}, ${words} words\n`;
+    });
+
+    document.querySelector("#chunks").textContent = report;
+  });
+    
+
+  </script>
+</body>
+</html>
