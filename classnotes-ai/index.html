@@ -23,6 +23,14 @@
     <pre id="chunks"></pre>
   </section>
 
+
+  <section>
+    <button id="generate">Generate notes from chunk 1</button>
+    <p id="generation-status"></p>
+    <pre id="notes"></pre>
+  </section>
+
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
     pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -30,6 +38,7 @@
 
     const OLLAMA = "http://localhost:11434";
     let pages = [];
+    let chunks = [];
 
     async function checkOllama() {
       const list = document.querySelector("#models");
@@ -108,12 +117,84 @@
       return chunks;
     }
 
+
+  async function generateNotes() {
+    const status = document.querySelector("#generation-status");
+    const output = document.querySelector("#notes");
+
+    if (chunks.length === 0) {
+      status.textContent = "Upload a PDF first.";
+      return;
+    }
+
+    status.textContent = "Generating notes...";
+    output.textContent = "";
+
+    try {
+      for (let i = 0; i < chunks.length; i++) {
+        status.textContent = `Generating notes for chunk ${i + 1} of ${chunks.length}...`;
+
+        const sourceText = chunks[i]
+          .map(([pageNumber, text]) => `[Page ${pageNumber}]\n${text}`)
+          .join("\n\n");
+
+        const response = await fetch(OLLAMA + "/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "qwen3:4b",
+            stream: false,
+            messages: [
+              {
+                role: "system",
+                content: `You create accurate study notes from lecture material.
+  Use only information supported by the supplied text.
+  Do not invent facts or examples.
+  Organize notes with Markdown headings and bullet points.
+  Preserve important definitions, formulas, and comparisons.
+  Cite source pages using [Page N].
+  Remove repetition.
+  Return only the finished notes in Markdown.`
+              },
+              {
+                role: "user",
+                content: `Create detailed study notes from this lecture excerpt:\n\n${sourceText}`
+              }
+            ],
+            options: {
+              temperature: 0.0
+            }
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Chunk ${i + 1}: Ollama returned HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        output.textContent +=
+          `\n\n# Chunk ${i + 1}\n\n${data.message.content}`;
+
+      }
+
+      status.textContent = `Successfully generated notes for all ${chunks.length} chunks.`;
+
+    } catch (error) {
+      status.textContent = `Generation failed: ${error.message}`;
+    }
+  }
+
+
+
   document.querySelector("#file").addEventListener("change", async (event) => {
     const file = event.target.files[0];
     pages = await readPdf(file);
     document.querySelector("#info").textContent = `${pages.length} pages loaded`;
 
-    const chunks = createChunks(pages, 1000, 5);
+    chunks = createChunks(pages, 1000, 5);
     let report = `Total pages: ${pages.length}\nTotal chunks: ${chunks.length}\n`;
 
     chunks.forEach((chunk, i) => {
@@ -128,7 +209,11 @@
     });
 
     document.querySelector("#chunks").textContent = report;
+    
   });
+  document
+    .querySelector("#generate")
+    .addEventListener("click", generateNotes);
     
 
   </script>
