@@ -1,29 +1,41 @@
+
 package com.tastematch.backend.controller;
 
 import com.tastematch.backend.model.Movie;
+import com.tastematch.backend.service.MovieService;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
 
-
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class MovieController {
 
-    @GetMapping("/api/movies")
-    public List<Movie> getMovies() {
-        return List.of(
-            new Movie(1L, "Interstellar", "Sci-Fi", 2014),
-            new Movie(2L, "The Dark Knight", "Action", 2008)
-        );
+    private final MovieService movieService;
+
+    public MovieController(MovieService movieService) {
+        this.movieService = movieService;
     }
 
-    @GetMapping("/api/movies/{id}")
-    public Optional<Movie> getMovieById(@PathVariable Long id) {
-        return getMovies().stream()
-            .filter(movie -> movie.getId().equals(id))
-            .findFirst();
+    @GetMapping("/api/movies")
+    public List<Movie> getMovies() {
+        return movieService.getAllMovies();
     }
+
+    
+    @GetMapping("/api/movies/{id}")
+    public ResponseEntity<Movie> getMovieById(@PathVariable Long id) {
+
+        Optional<Movie> movie = movieService.getMovieById(id);
+
+        if (movie.isPresent()) {
+            return ResponseEntity.ok(movie.get());
+        }
+
+        return ResponseEntity.notFound().build();
+    }
+
 }
